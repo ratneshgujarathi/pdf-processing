@@ -20,7 +20,7 @@ class CoreResponse():
             file_content,
             mimetype=mimetype,
             as_attachment=True,
-            attachment_filename=file_name
+            download_name=file_name
         )
 
 

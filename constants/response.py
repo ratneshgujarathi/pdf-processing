@@ -45,6 +45,8 @@ RESPONSE_CONSTANTS = {
     # DB Error
     'DB_PERMISSION_DENIED': lambda status_code=403: ('Database permission denied', status_code),
     'DB_WRITE_ERROR': lambda status_code=500: ('Database write failed', status_code),
-    'DB_REPLICA_UNAVAILABLE': lambda status_code=503: ('Database replica unavailable', status_code)
+    'DB_REPLICA_UNAVAILABLE': lambda status_code=503: ('Database replica unavailable', status_code),
 
+    # Common Error
+    'NOT_FOUND': lambda status_code=404: ('Requested entity not found', status_code),
 }
