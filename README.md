@@ -1,7 +1,4 @@
-# Let's create the GitHub project description in a markdown (.md) file.
 
-# Defining the markdown content
-project_description_md = """
 # PDF Processing API
 
 ## Description:
