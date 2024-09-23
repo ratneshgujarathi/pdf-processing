@@ -21,10 +21,19 @@ def upload_file():
     except Exception as e:
         pdf_process_logger.error(f"Unexpected error: {e}")
         return ErrorResponse(e.args)
-    
-@pdf_bp.route("/download", methods=['GET'])
+
+
+@pdf_bp.route("/download", methods=["GET"])
 def download_file():
     try:
         return CoreResponse.file(**common_ops.download(request))
+    except Exception as e:
+        return ErrorResponse(e.args)
+
+
+@pdf_bp.route("/list", methods=["GET"])
+def list_files():
+    try:
+        return SuccessResponse(common_ops.list_files(request))
     except Exception as e:
         return ErrorResponse(e.args)

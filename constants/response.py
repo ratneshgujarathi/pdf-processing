@@ -49,4 +49,7 @@ RESPONSE_CONSTANTS = {
 
     # Common Error
     'NOT_FOUND': lambda status_code=404: ('Requested entity not found', status_code),
+    'INVALID_PAGINATION': lambda status_code=400: ('Invalid pagination parameters', status_code),
+    'INVALID_DATE_FORMAT': lambda field, status_code=400: ("Invalid date format for {0} please follow YYYY-MM-DD format".format(', '.join(field)), status_code),
+
 }
