@@ -1,15 +1,17 @@
 from flask import request
 from helpers.logger import CoreLogger, LoggerManager
 from applications import create_app
+from helpers.database import db_init
 
-import os
+import os, sys
 
 # Define the base path of the project
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
-
+if BASE_PATH not in sys.path:
+    sys.path.append(BASE_PATH)
 
 app = create_app()
-
+mongo = db_init(app)
 
 # Initialize the core logger for logging API hits
 core_logger = CoreLogger().get_logger()

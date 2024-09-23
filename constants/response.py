@@ -36,8 +36,15 @@ RESPONSE_CONSTANTS = {
     'ACCESS_PERMISSION_NOT_FOUND': lambda status_code=999: ("User don't have access to the resource. Please contact administrator", status_code),
 
     # File Management
-    'FILE_NOT_FOUND': lambda status_code=400: ('The file is not present', status_code),
-    'FILE_NOT_EXIST': lambda status_code=400: ('The file does not exists', status_code),
-    'FILE_NOT_ALLOWED': lambda status_code=400: ('The file type is not allowed', status_code),
-    'FILE_NAME_INVALID': lambda status_code=400: ('The file name is invalid', status_code)
+    'FILE_NOT_FOUND': lambda status_code=404: ('File not found', status_code),
+    'FILE_NOT_EXIST': lambda status_code=404: ('File does not exist', status_code),
+    'FILE_NOT_ALLOWED': lambda status_code=415: ('Unsupported file type', status_code),
+    'FILE_NAME_INVALID': lambda status_code=400: ('Invalid file name', status_code),
+    'FILE_WRITE_ERROR': lambda status_code=500: ('Error writing file', status_code),
+
+    # DB Error
+    'DB_PERMISSION_DENIED': lambda status_code=403: ('Database permission denied', status_code),
+    'DB_WRITE_ERROR': lambda status_code=500: ('Database write failed', status_code),
+    'DB_REPLICA_UNAVAILABLE': lambda status_code=503: ('Database replica unavailable', status_code)
+
 }

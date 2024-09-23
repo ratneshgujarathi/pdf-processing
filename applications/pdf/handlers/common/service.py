@@ -1,7 +1,9 @@
+from app import BASE_PATH
 import os
 from werkzeug.utils import secure_filename
-from flask import send_file, current_app
-from app import BASE_PATH
+from flask import send_file
+from constants.db_constants import CollectionNames
+import app as MongoService
 
 class CommonOperation:
     def __init__(self, upload_folder=os.path.join(BASE_PATH, f"uploads"), allowed_extensions=None):
@@ -35,7 +37,10 @@ class CommonOperation:
             filename = secure_filename(file.filename)
             file_path = os.path.join(self.upload_folder, filename)
             file.save(file_path)
-            return {"message": "File uploaded successfully", "file_path": file_path}
+            file_response = MongoService.mongo.db[CollectionNames.FILES].insert_one({"filepath": file_path})
+            if not file_response.acknowledged:
+                raise Exception('DB_WRITE_ERROR')
+            return {"message": "File uploaded successfully", "file_path": file_path, "file_id": file_response.inserted_id.__str__()}
         else:
             raise Exception('FILE_NOT_ALLOWED')
 
