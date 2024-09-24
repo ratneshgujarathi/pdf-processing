@@ -2,16 +2,18 @@ from flask import Flask
 import os
 import logging
 from logging.handlers import RotatingFileHandler
+from config import load_config
 
-def create_app(config_class='config.DevelopmentConfig'):
+def create_app():
     app = Flask(__name__, instance_relative_config=True)
+    
+    config_class = load_config()
 
     # Load the config from config.py
     app.config.from_object(config_class)
     
     # Load config from instance folder (instance/config.py)
-    app.config.from_pyfile('config.py', silent=True)
-
+    # app.config.from_pyfile('config.py', silent=True)
     # Setup logging
     if not app.debug:
         if not os.path.exists('logs'):
