@@ -1,0 +1,29 @@
+---
+responses:
+  200:
+    description: Database connected
+    schema:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            collections:
+              type: array
+              items:
+                type: string
+  500:
+    description: Database connection failed
+    schema:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        errors:
+          type: object 

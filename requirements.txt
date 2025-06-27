@@ -1,0 +1,8 @@
+flask
+flask-pymongo
+python-dotenv
+pytest
+requests
+flasgger
+boto3
+pytest-cov

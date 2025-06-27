@@ -1,0 +1,13 @@
+---
+responses:
+  200:
+    description: Service is healthy
+    schema:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object 

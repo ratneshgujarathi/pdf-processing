@@ -1,0 +1,48 @@
+---
+consumes:
+  - multipart/form-data
+parameters:
+  - in: formData
+    name: pdf
+    type: file
+    required: true
+    description: The PDF file to upload
+responses:
+  201:
+    description: PDF uploaded successfully
+    schema:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            file_id:
+              type: string
+            filename:
+              type: string
+  400:
+    description: Bad request
+    schema:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        errors:
+          type: object
+  500:
+    description: Internal server error
+    schema:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        errors:
+          type: object 

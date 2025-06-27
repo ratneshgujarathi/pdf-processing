@@ -1,4 +1,3 @@
-
 # PDF Processing API
 
 ## Description:
@@ -42,3 +41,30 @@ This project provides a set of public APIs for performing various operations on 
 - Review the "Future Work" section to see areas that need contributions.
 
 Feel free to open issues or reach out for any questions!
+
+# PDF Processing Flask App
+
+## Setup
+
+1. Create a virtual environment and activate it:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Set environment variables as needed (optional):
+   - `SECRET_KEY` (default: supersecretkey)
+   - `MONGO_URI` (default: mongodb://localhost:27017/pdfdb)
+
+4. Run MongoDB locally or provide a remote URI.
+
+## Run the App
+
+```bash
+python run.py
+```
+
+Visit [http://localhost:5000/api/v1/health](http://localhost:5000/api/v1/health) to check the health endpoint.

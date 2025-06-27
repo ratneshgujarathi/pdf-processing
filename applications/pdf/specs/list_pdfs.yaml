@@ -1,0 +1,18 @@
+---
+responses:
+  200:
+    description: List of PDFs retrieved successfully
+    schema:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            pdfs:
+              type: array
+              items:
+                type: object 
