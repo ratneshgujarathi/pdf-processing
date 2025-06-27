@@ -7,6 +7,8 @@ from applications.common.response_factory import ResponseFactory
 from flasgger import swag_from
 from applications.common.s3_utils import upload_file_to_s3, generate_presigned_url
 import boto3
+import hashlib
+from datetime import datetime
 
 api_bp = Blueprint('api', __name__)
 
@@ -23,17 +25,26 @@ def upload_pdf():
         return ResponseFactory.error(message='Only PDF files are allowed', status_code=400)
 
     safe_filename = secure_filename(filename)
-    file.stream.seek(0)  # Ensure file pointer is at start
+    file.stream.seek(0)
+    file_bytes = file.read()
+    md5 = hashlib.md5(file_bytes).hexdigest()
+    file_size = len(file_bytes)
+    file.stream.seek(0)  # Reset pointer for upload
     file_url, error = upload_file_to_s3(file, safe_filename, file.content_type)
     if error:
         return ResponseFactory.error(message='Failed to upload PDF to S3', status_code=500, errors={'exception': error})
 
+    now = datetime.utcnow().isoformat() + 'Z'
     mongo = current_app.extensions['mongo']
     db = mongo.cx['pdf_engine']
     db.pdfs.insert_one({
         'filename': safe_filename,
+        'original_filename': filename,
         'content_type': file.content_type,
-        'size': file.content_length,
+        'size': file_size,
+        'md5': md5,
+        'created_at': now,
+        'updated_at': now,
     })
     return ResponseFactory.success(
         data={'filename': safe_filename},

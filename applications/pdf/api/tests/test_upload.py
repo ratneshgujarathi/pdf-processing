@@ -1,5 +1,6 @@
 import io
 from unittest.mock import patch
+import hashlib
 
 def test_upload_pdf(client):
     with patch('applications.pdf.api.v1.upload_file_to_s3', return_value=("https://fake-s3-url/test.pdf", None)):
@@ -9,6 +10,23 @@ def test_upload_pdf(client):
         assert response.status_code == 201
         assert response.json['success'] is True
         assert response.json['data']['filename'] == 'test.pdf'
+        # Check metadata in list
+        with patch('boto3.client') as mock_boto:
+            mock_s3 = mock_boto.return_value
+            mock_s3.get_object.return_value = {'Body': io.BytesIO(pdf_bytes)}
+            list_response = client.get('/api/v1/list')
+            pdfs = list_response.json['data']['pdfs']
+            found = False
+            for pdf in pdfs:
+                if pdf['filename'] == 'test.pdf':
+                    found = True
+                    assert pdf['original_filename'] == 'test.pdf'
+                    assert pdf['content_type'] == 'application/pdf'
+                    assert pdf['size'] == len(pdf_bytes)
+                    assert pdf['md5'] == hashlib.md5(pdf_bytes).hexdigest()
+                    assert 'created_at' in pdf
+                    assert 'updated_at' in pdf
+            assert found
 
 def test_upload_pdf_s3_error(client):
     with patch('applications.pdf.api.v1.upload_file_to_s3', return_value=(None, "S3 error")):
