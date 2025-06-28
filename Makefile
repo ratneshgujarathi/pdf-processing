@@ -11,6 +11,7 @@ help:
 	@echo "  test     - Run tests in container"
 	@echo "  dev      - Run in development mode"
 	@echo "  prod     - Run in production mode"
+	@echo "  gunicorn - Run with Gunicorn locally (for testing)"
 	@echo "  logfiles - Show log file locations"
 	@echo "  logtail  - Tail all log files"
 	@echo "  logclean - Clean old log files"
@@ -26,6 +27,11 @@ dev:
 # Run in production mode
 prod:
 	docker-compose -f docker-compose.prod.yml up --build -d
+
+# Run with Gunicorn locally (for testing production setup)
+gunicorn:
+	@echo "Starting application with Gunicorn..."
+	gunicorn -c gunicorn.conf.py run:app
 
 # Stop all containers
 stop:
@@ -48,15 +54,15 @@ test:
 
 # Health check
 health:
-	curl -f http://localhost:5000/api/v1/health || echo "Health check failed"
+	curl -f http://localhost:8000/api/v1/health || echo "Health check failed"
 
 # Database test
 dbtest:
-	curl -f http://localhost:5000/api/v1/dbtest || echo "Database test failed"
+	curl -f http://localhost:8000/api/v1/dbtest || echo "Database test failed"
 
 # List PDFs
 list:
-	curl -f http://localhost:5000/api/v1/list || echo "List endpoint failed"
+	curl -f http://localhost:8000/api/v1/list || echo "List endpoint failed"
 
 # Build and run with specific environment
 run: build dev

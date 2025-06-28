@@ -26,7 +26,7 @@ def upload_file_to_s3(file_obj, filename, content_type):
         )
         file_url = f"https://{AWS_S3_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{filename}"
         return file_url, None
-    except (BotoCoreError, ClientError) as e:
+    except Exception as e:
         return None, str(e)
 
 def generate_presigned_url(filename, expiration=300):

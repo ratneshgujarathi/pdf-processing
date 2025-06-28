@@ -9,7 +9,7 @@ A secure Flask API for uploading, storing, and viewing PDFs using AWS S3 and Mon
 - **Security**: No S3 URLs exposed, private bucket access, secure file handling
 - **Comprehensive Testing**: 100% test coverage with mocked S3 interactions
 - **Containerized**: Docker support for easy deployment and dependency management
-- **Production Ready**: External nginx support, SSL ready, rate limiting
+- **Production Ready**: Gunicorn WSGI server, external nginx support, SSL ready, rate limiting
 
 ## Quick Start with Docker
 
@@ -36,7 +36,7 @@ A secure Flask API for uploading, storing, and viewing PDFs using AWS S3 and Mon
 
 3. **Run with Docker Compose**
    ```bash
-   # Development mode
+   # Development mode (Flask dev server)
    make dev
    
    # Or manually
@@ -52,7 +52,7 @@ A secure Flask API for uploading, storing, and viewing PDFs using AWS S3 and Mon
 
 #### Option 1: External Nginx (Recommended)
 
-1. **Deploy the Flask app**
+1. **Deploy the Flask app with Gunicorn**
    ```bash
    make prod
    
@@ -82,7 +82,7 @@ A secure Flask API for uploading, storing, and viewing PDFs using AWS S3 and Mon
 
 1. **Deploy to cloud platform**
    ```bash
-   # Deploy container
+   # Deploy container with Gunicorn
    make prod
    
    # Configure load balancer to point to port 5000
@@ -95,11 +95,14 @@ A secure Flask API for uploading, storing, and viewing PDFs using AWS S3 and Mon
 # Build the image
 make build
 
-# Run in development
+# Run in development (Flask dev server)
 make dev
 
-# Run in production
+# Run in production (Gunicorn)
 make prod
+
+# Test Gunicorn locally
+make gunicorn
 
 # Stop all containers
 make stop
@@ -155,7 +158,13 @@ make list
 
 4. **Run the application**
    ```bash
+   # Development mode (Flask dev server)
+   export FLASK_ENV=development
    python run.py
+   
+   # Production mode (Gunicorn)
+   export FLASK_ENV=production
+   gunicorn -c gunicorn.conf.py run:app
    ```
 
 ## Environment Variables
@@ -178,6 +187,21 @@ S3_BUCKET_NAME=your-pdf-bucket
 FLASK_ENV=development
 FLASK_DEBUG=1
 ```
+
+## Production Features
+
+### Gunicorn WSGI Server
+- **Multi-worker processes**: Handles concurrent requests efficiently
+- **Process management**: Automatic restart on crashes
+- **Load balancing**: Distributes requests across workers
+- **Production logging**: Structured logging with request tracking
+- **Graceful shutdown**: Proper handling of SIGTERM signals
+
+### Configuration
+- **Workers**: Automatically scales based on CPU cores (CPU_COUNT * 2 + 1)
+- **Timeout**: 120 seconds for long-running PDF operations
+- **Memory management**: Workers restart after 1000 requests to prevent memory leaks
+- **Security**: Request size limits and field validation
 
 ## API Endpoints
 

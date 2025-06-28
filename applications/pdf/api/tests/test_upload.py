@@ -69,4 +69,37 @@ def test_upload_pdf_exception(client):
         response = client.post('/api/v1/upload', data=data, content_type='multipart/form-data')
         assert response.status_code == 500
         assert response.json['success'] is False
-        assert 'Upload failed' in response.json['message'] 
+        assert 'Upload failed' in response.json['message']
+
+def test_s3_utils_error_handling():
+    """Test S3 utility functions error handling directly"""
+    from applications.common.s3_utils import upload_file_to_s3, generate_presigned_url
+    
+    # Test upload_file_to_s3 error handling
+    with patch('applications.common.s3_utils.s3_client') as mock_s3:
+        mock_s3.upload_fileobj.side_effect = Exception('Upload error')
+        mock_file = io.BytesIO(b'test content')
+        url, error = upload_file_to_s3(mock_file, 'test.pdf', 'application/pdf')
+        assert url is None
+        assert error == 'Upload error'
+    
+    # Test generate_presigned_url error handling
+    with patch('applications.common.s3_utils.s3_client') as mock_s3:
+        mock_s3.generate_presigned_url.side_effect = Exception('URL error')
+        url, error = generate_presigned_url('test.pdf')
+        assert url is None
+        assert error == 'URL error'
+
+def test_s3_utils_success():
+    """Test S3 utility functions success paths directly"""
+    from applications.common.s3_utils import upload_file_to_s3, generate_presigned_url
+    import io
+    with patch('applications.common.s3_utils.s3_client') as mock_s3:
+        mock_s3.upload_fileobj.return_value = None
+        url, error = upload_file_to_s3(io.BytesIO(b'test'), 'test.pdf', 'application/pdf')
+        assert url is not None
+        assert error is None
+        mock_s3.generate_presigned_url.return_value = 'http://example.com/test.pdf'
+        url, error = generate_presigned_url('test.pdf')
+        assert url == 'http://example.com/test.pdf'
+        assert error is None 

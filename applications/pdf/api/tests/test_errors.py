@@ -20,4 +20,13 @@ def test_500_error(client):
     response = client.get('/api/v1/raise-error')
     assert response.status_code == 500
     assert 'error' in response.json
+    assert response.json['error'] == 'Internal server error'
+
+def test_global_exception_handler_return(client):
+    app = client.application
+    @app.route('/api/v1/raise-unhandled')
+    def raise_unhandled():
+        raise ValueError("Unhandled error")
+    response = client.get('/api/v1/raise-unhandled')
+    assert response.status_code == 500
     assert response.json['error'] == 'Internal server error' 
