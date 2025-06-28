@@ -14,7 +14,7 @@ import logging
 api_bp = Blueprint('api', __name__)
 
 @api_bp.route('/upload', methods=['POST'])
-@swag_from('../specs/upload.yaml')
+@swag_from(os.path.join(os.path.dirname(__file__), '../specs/upload.yaml'))
 @log_request
 def upload_pdf():
     """Upload a PDF file to S3 and store metadata in MongoDB"""
@@ -93,7 +93,7 @@ def upload_pdf():
         return ResponseFactory.error(message='Upload failed', status_code=500)
 
 @api_bp.route('/list', methods=['GET'])
-@swag_from('../specs/list_pdfs.yaml')
+@swag_from(os.path.join(os.path.dirname(__file__), '../specs/list_pdfs.yaml'))
 @log_request
 def list_pdfs():
     """List all uploaded PDFs with metadata"""
@@ -127,6 +127,7 @@ def list_pdfs():
         return ResponseFactory.error(message='Failed to retrieve PDFs', status_code=500)
 
 @api_bp.route('/view/<filename>', methods=['GET'])
+@swag_from(os.path.join(os.path.dirname(__file__), '../specs/view.yaml'))
 @log_request
 def view_pdf(filename):
     """View a specific PDF file"""

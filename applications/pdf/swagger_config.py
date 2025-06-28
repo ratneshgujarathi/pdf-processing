@@ -5,7 +5,7 @@ swagger_template = {
         "description": "API for uploading and processing PDF files.",
         "version": "1.0.0"
     },
-    "basePath": "/api/v1",
+    "basePath": "/",
     "schemes": ["http", "https"],
 }
 

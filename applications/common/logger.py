@@ -83,8 +83,8 @@ def setup_logging(app):
     # Core application logs
     core_handler = RotatingFileHandler(
         os.path.join(core_logs_dir, 'app.log'),
-        maxBytes=10*1024*1024,  # 10MB
-        backupCount=5
+        maxBytes=2*1024*1024,  # 2MB
+        backupCount=2
     )
     core_handler.setFormatter(CustomJSONFormatter())
     core_handler.setLevel(logging.INFO)
@@ -96,8 +96,8 @@ def setup_logging(app):
     
     api_handler = RotatingFileHandler(
         os.path.join(api_logs_dir, 'api.log'),
-        maxBytes=10*1024*1024,  # 10MB
-        backupCount=5
+        maxBytes=2*1024*1024,  # 2MB
+        backupCount=2
     )
     api_handler.setFormatter(CustomJSONFormatter())
     api_logger.addHandler(api_handler)
@@ -108,8 +108,8 @@ def setup_logging(app):
     
     pdf_handler = RotatingFileHandler(
         os.path.join(pdf_logs_dir, 'pdf_api.log'),
-        maxBytes=10*1024*1024,  # 10MB
-        backupCount=5
+        maxBytes=2*1024*1024,  # 2MB
+        backupCount=2
     )
     pdf_handler.setFormatter(CustomJSONFormatter())
     pdf_logger.addHandler(pdf_handler)
@@ -120,8 +120,8 @@ def setup_logging(app):
     
     upload_handler = RotatingFileHandler(
         os.path.join(pdf_logs_dir, 'upload.log'),
-        maxBytes=10*1024*1024,  # 10MB
-        backupCount=5
+        maxBytes=2*1024*1024,  # 2MB
+        backupCount=2
     )
     upload_handler.setFormatter(CustomJSONFormatter())
     upload_logger.addHandler(upload_handler)
@@ -132,8 +132,8 @@ def setup_logging(app):
     
     view_handler = RotatingFileHandler(
         os.path.join(pdf_logs_dir, 'view.log'),
-        maxBytes=10*1024*1024,  # 10MB
-        backupCount=5
+        maxBytes=2*1024*1024,  # 2MB
+        backupCount=2
     )
     view_handler.setFormatter(CustomJSONFormatter())
     view_logger.addHandler(view_handler)
@@ -144,8 +144,8 @@ def setup_logging(app):
     
     error_handler = RotatingFileHandler(
         os.path.join(core_logs_dir, 'errors.log'),
-        maxBytes=10*1024*1024,  # 10MB
-        backupCount=5
+        maxBytes=2*1024*1024,  # 2MB
+        backupCount=2
     )
     error_handler.setFormatter(CustomJSONFormatter())
     error_logger.addHandler(error_handler)

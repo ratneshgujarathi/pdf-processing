@@ -1,11 +1,14 @@
 from flask import Blueprint, current_app, g
 from applications.common.response_factory import ResponseFactory
 from applications.common.logger import log_request, log_error
+from flasgger import swag_from
 import logging
+import os
 
 bp = Blueprint('health', __name__)
 
 @bp.route('/health', methods=['GET'])
+@swag_from(os.path.join(os.path.dirname(__file__), '../specs/health.yaml'))
 @log_request
 def health_check():
     """Health check endpoint"""
@@ -35,6 +38,7 @@ def health_check():
         return ResponseFactory.error(message='Health check failed', status_code=500)
 
 @bp.route('/dbtest', methods=['GET'])
+@swag_from(os.path.join(os.path.dirname(__file__), '../specs/dbtest.yaml'))
 @log_request
 def db_test():
     """Database connection test"""
