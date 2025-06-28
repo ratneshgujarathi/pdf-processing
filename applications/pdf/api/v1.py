@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, current_app, request, Response
 from werkzeug.utils import secure_filename
-import gridfs
 from bson import ObjectId
 import os
 from applications.common.response_factory import ResponseFactory
@@ -8,7 +7,7 @@ from flasgger import swag_from
 from applications.common.s3_utils import upload_file_to_s3, generate_presigned_url
 import boto3
 import hashlib
-from datetime import datetime
+from datetime import datetime, timezone
 
 api_bp = Blueprint('api', __name__)
 
@@ -34,7 +33,7 @@ def upload_pdf():
     if error:
         return ResponseFactory.error(message='Failed to upload PDF to S3', status_code=500, errors={'exception': error})
 
-    now = datetime.utcnow().isoformat() + 'Z'
+    now = datetime.now(timezone.utc).isoformat()
     mongo = current_app.extensions['mongo']
     db = mongo.cx['pdf_engine']
     db.pdfs.insert_one({
