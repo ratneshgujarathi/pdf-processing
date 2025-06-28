@@ -173,9 +173,9 @@ Create a `.env` file with the following variables:
 
 ```env
 # MongoDB Configuration (External)
-MONGODB_URI=mongodb://localhost:27017/pdf_processing
+MONGO_URI=mongodb://localhost:27017/pdf_processing
 # For MongoDB Atlas:
-# MONGODB_URI=mongodb+srv://<username>:<password>@<cluster-url>/pdf_processing?retryWrites=true&w=majority
+# MONGO_URI=mongodb+srv://<username>:<password>@<cluster-url>/pdf_processing?retryWrites=true&w=majority
 
 # AWS Configuration
 AWS_ACCESS_KEY_ID=your_access_key

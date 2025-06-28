@@ -1,11 +1,47 @@
 import io
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 import hashlib
 import pytest
+from bson import ObjectId
 
 def test_upload_pdf(client):
+    pdf_bytes = b'%PDF-1.4\n%Fake PDF file for testing\n%%EOF'
+    expected_filename = 'test.pdf'
+    mock_collection = client.application.extensions['mongo'].cx['pdf_engine'].pdfs
+    # Mock insert_one to return a document ID
+    mock_collection.insert_one.return_value = MagicMock(inserted_id='test_id')
+    
+    # Use a real ObjectId for the _id
+    test_object_id = ObjectId()
+    
+    # Mock find to return the uploaded PDF in the list
+    mock_pdf_doc = {
+        '_id': test_object_id,
+        'filename': expected_filename,
+        'original_filename': 'test.pdf',
+        'content_type': 'application/pdf',
+        'size': len(pdf_bytes),
+        'md5': hashlib.md5(pdf_bytes).hexdigest(),
+        'created_at': '2023-01-01T00:00:00Z',
+        'updated_at': '2023-01-01T00:00:00Z'
+    }
+    mock_collection.find.return_value = [mock_pdf_doc]
+    
+    mock_find_one_doc = {
+        '_id': test_object_id,
+        'filename': expected_filename,
+        'original_filename': 'test.pdf',
+        'content_type': 'application/pdf',
+        'size': len(pdf_bytes),
+        'md5': hashlib.md5(pdf_bytes).hexdigest(),
+        'created_at': '2023-01-01T00:00:00Z',
+        'updated_at': '2023-01-01T00:00:00Z'
+    }
+    
     with patch('applications.pdf.api.v1.upload_file_to_s3', return_value=("https://fake-s3-url/test.pdf", None)):
-        pdf_bytes = b'%PDF-1.4\n%Fake PDF file for testing\n%%EOF'
+        # Set up find_one mock inside the patch context using side_effect
+        mock_collection.find_one.side_effect = lambda query: mock_find_one_doc
+        
         data = {'pdf': (io.BytesIO(pdf_bytes), 'test.pdf')}
         response = client.post('/api/v1/upload', data=data, content_type='multipart/form-data')
         assert response.status_code == 201
@@ -22,7 +58,7 @@ def test_upload_pdf(client):
             pdfs = list_response.json['data']['pdfs']
             found = False
             for pdf in pdfs:
-                if pdf['filename'] == 'test.pdf':
+                if pdf['filename'] == expected_filename:
                     found = True
                     assert pdf['original_filename'] == 'test.pdf'
                     assert pdf['content_type'] == 'application/pdf'
