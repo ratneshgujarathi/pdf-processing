@@ -1,0 +1,33 @@
+---
+parameters:
+  - in: path
+    name: filename
+    required: true
+    type: string
+    description: The name of the PDF file to view
+responses:
+  200:
+    description: Streams the PDF file inline for browser viewing
+    schema:
+      type: string
+      format: binary
+  404:
+    description: PDF not found
+    schema:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+  500:
+    description: Internal server error
+    schema:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        errors:
+          type: object 

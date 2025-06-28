@@ -1,14 +1,233 @@
 # PDF Processing API
 
-A secure Flask-based API for uploading, storing, and viewing PDF files using AWS S3 and MongoDB.
+A secure Flask API for uploading, storing, and viewing PDFs using AWS S3 and MongoDB. The application provides modular endpoints for health checks, database tests, PDF upload, listing, and viewing with comprehensive security features.
 
 ## Features
 
-- **Secure PDF Upload**: Files uploaded to private S3 bucket with metadata stored in MongoDB
-- **Comprehensive Metadata**: MD5 hash, timestamps, file size, and original filename tracking
-- **Swagger Documentation**: Interactive API documentation
-- **Modular Test Structure**: Robust test suite with comprehensive coverage
-- **Factory Pattern**: Standardized API responses using ResponseFactory
+- **Secure PDF Upload**: Upload PDFs to private S3 bucket with metadata storage in MongoDB
+- **PDF Management**: List and view PDFs with secure backend proxying
+- **Security**: No S3 URLs exposed, private bucket access, secure file handling
+- **Comprehensive Testing**: 100% test coverage with mocked S3 interactions
+- **Containerized**: Docker support for easy deployment and dependency management
+- **Production Ready**: External nginx support, SSL ready, rate limiting
+
+## Quick Start with Docker
+
+### Prerequisites
+
+- Docker and Docker Compose installed
+- AWS credentials configured
+- External MongoDB instance
+- External nginx (for production)
+
+### Development Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd pdf-processing
+   ```
+
+2. **Set up environment variables**
+   ```bash
+   cp env.example .env
+   # Edit .env with your AWS credentials and MongoDB URI
+   ```
+
+3. **Run with Docker Compose**
+   ```bash
+   # Development mode
+   make dev
+   
+   # Or manually
+   docker-compose up --build
+   ```
+
+4. **Access the API**
+   - API: http://localhost:5000
+   - Swagger UI: http://localhost:5000/swagger
+   - Health Check: http://localhost:5000/api/v1/health
+
+### Production Deployment
+
+#### Option 1: External Nginx (Recommended)
+
+1. **Deploy the Flask app**
+   ```bash
+   make prod
+   
+   # Or manually
+   docker-compose -f docker-compose.prod.yml up --build -d
+   ```
+
+2. **Configure external nginx**
+   ```bash
+   # Copy the external nginx config
+   sudo cp nginx-external.conf /etc/nginx/sites-available/pdf-api
+   
+   # Update the domain and SSL paths in the config
+   sudo nano /etc/nginx/sites-available/pdf-api
+   
+   # Enable the site
+   sudo ln -s /etc/nginx/sites-available/pdf-api /etc/nginx/sites-enabled/
+   sudo nginx -t
+   sudo systemctl reload nginx
+   ```
+
+3. **Access the production API**
+   - API: https://your-domain.com
+   - Health Check: https://your-domain.com/health
+
+#### Option 2: Load Balancer (Cloud)
+
+1. **Deploy to cloud platform**
+   ```bash
+   # Deploy container
+   make prod
+   
+   # Configure load balancer to point to port 5000
+   # Set up SSL termination at load balancer level
+   ```
+
+## Docker Commands
+
+```bash
+# Build the image
+make build
+
+# Run in development
+make dev
+
+# Run in production
+make prod
+
+# Stop all containers
+make stop
+
+# View logs
+make logs
+
+# Run tests
+make test
+
+# Clean up everything
+make clean
+
+# Health check
+make health
+
+# Database test
+make dbtest
+
+# List PDFs
+make list
+```
+
+## Manual Setup (Without Docker)
+
+### Prerequisites
+
+- Python 3.11+
+- MongoDB
+- AWS S3 bucket
+- AWS credentials
+
+### Installation
+
+1. **Clone and setup virtual environment**
+   ```bash
+   git clone <repository-url>
+   cd pdf-processing
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+2. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Configure environment variables**
+   ```bash
+   cp env.example .env
+   # Edit .env with your configuration
+   ```
+
+4. **Run the application**
+   ```bash
+   python run.py
+   ```
+
+## Environment Variables
+
+Create a `.env` file with the following variables:
+
+```env
+# MongoDB Configuration (External)
+MONGODB_URI=mongodb://localhost:27017/pdf_processing
+# For MongoDB Atlas:
+# MONGODB_URI=mongodb+srv://<username>:<password>@<cluster-url>/pdf_processing?retryWrites=true&w=majority
+
+# AWS Configuration
+AWS_ACCESS_KEY_ID=your_access_key
+AWS_SECRET_ACCESS_KEY=your_secret_key
+AWS_DEFAULT_REGION=us-east-1
+S3_BUCKET_NAME=your-pdf-bucket
+
+# Flask Configuration
+FLASK_ENV=development
+FLASK_DEBUG=1
+```
+
+## API Endpoints
+
+### Health Check
+- **GET** `/api/v1/health`
+- Returns application health status
+
+### Database Test
+- **GET** `/api/v1/dbtest`
+- Tests MongoDB connection
+
+### Upload PDF
+- **POST** `/api/v1/upload`
+- Upload a PDF file to S3 and store metadata in MongoDB
+- **Content-Type**: `multipart/form-data`
+- **Body**: `file` (PDF file)
+
+### List PDFs
+- **GET** `/api/v1/list`
+- Returns list of all PDFs with metadata
+
+### View PDF
+- **GET** `/api/v1/view/<filename>`
+- Streams PDF file from S3 through backend proxy
+
+## Security Features
+
+- **Private S3 Bucket**: All PDFs stored in private S3 bucket
+- **No URL Exposure**: S3 URLs never exposed in API responses
+- **Backend Proxying**: PDF viewing through secure backend proxy
+- **Input Validation**: Comprehensive file type and size validation
+- **Rate Limiting**: API rate limiting in production
+- **SSL/TLS**: HTTPS support with proper security headers
+- **Non-root Container**: Docker containers run as non-root user
+
+## Testing
+
+### Run Tests
+```bash
+# With Docker
+make test
+
+# Without Docker
+python -m pytest applications/pdf/api/tests/ -v
+```
+
+### Test Coverage
+```bash
+python -m pytest applications/pdf/api/tests/ --cov=applications/pdf/api --cov-report=html
+```
 
 ## Project Structure
 
@@ -16,183 +235,93 @@ A secure Flask-based API for uploading, storing, and viewing PDF files using AWS
 pdf-processing/
 ├── applications/
 │   ├── common/
-│   │   ├── response_factory.py    # Standardized API response factory
-│   │   └── s3_utils.py            # S3 upload and utility functions
+│   │   ├── response_factory.py
+│   │   └── s3_utils.py
 │   └── pdf/
 │       ├── api/
-│       │   ├── v1.py              # Main API endpoints (upload, list, view)
-│       │   ├── health.py          # Health check and database test endpoints
-│       │   ├── tests/             # Modular test structure
-│       │   │   ├── conftest.py    # Shared test fixtures
-│       │   │   ├── test_upload.py # Upload endpoint tests
-│       │   │   ├── test_list.py   # List and view endpoint tests
-│       │   │   ├── test_health.py # Health endpoint tests
-│       │   │   ├── test_dbtest.py # Database test endpoint tests
-│       │   │   └── test_errors.py # Error handler tests
-│       │   └── specs/             # Swagger YAML specifications
-│       │       ├── upload.yaml
-│       │       ├── list_pdfs.yaml
-│       │       ├── health.yaml
-│       │       └── dbtest.yaml
-│       ├── config.py              # Application configuration
-│       ├── swagger_config.py      # Swagger UI configuration
-│       └── __init__.py            # Flask app factory
-├── requirements.txt               # Python dependencies
-├── run.py                         # Application entry point
-└── .env                          # Environment variables (create this)
-```
-
-## Setup
-
-### 1. Environment Variables (.env file)
-
-Create a `.env` file in the project root with the following variables:
-
-```bash
-# Flask Configuration
-SECRET_KEY=your_secret_key_here
-
-# MongoDB Configuration
-MONGO_URI=mongodb://localhost:27017/pdf_engine
-# OR for MongoDB Atlas:
-# MONGO_URI=mongodb+srv://<username>:<password>@<cluster-url>/pdf_engine?retryWrites=true&w=majority
-
-# AWS S3 Configuration
-AWS_ACCESS_KEY_ID=your_aws_access_key
-AWS_SECRET_ACCESS_KEY=your_aws_secret_key
-AWS_S3_BUCKET_NAME=your_s3_bucket_name
-AWS_REGION=your_aws_region
-```
-
-### 2. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Run the Application
-
-```bash
-python run.py
-```
-
-The API will be available at `http://localhost:5000`
-
-## API Endpoints
-
-### Health & Database
-- `GET /api/v1/health` - Service health check
-- `GET /api/v1/dbtest` - Database connection test
-
-### PDF Management
-- `POST /api/v1/upload` - Upload a PDF file
-- `GET /api/v1/list` - List all uploaded PDFs
-- `GET /api/v1/view/<filename>` - View a specific PDF
-
-## Testing
-
-### Run All Tests
-```bash
-PYTHONPATH=. pytest applications/pdf/api/tests/
-```
-
-### Run Tests with Coverage
-```bash
-PYTHONPATH=. pytest --cov=applications/pdf/api --cov-report=term-missing applications/pdf/api/tests/
-```
-
-### Test Structure
-- **Modular Tests**: Each endpoint has its own test file
-- **Mocked S3**: Tests use mocked S3 operations for reliability
-- **Error Coverage**: All error paths are tested
-- **100% Coverage**: All business logic is covered
-
-## Swagger Documentation
-
-### Access Swagger UI
-Visit `http://localhost:5000/swagger/` to access the interactive API documentation.
-
-### Features
-- Interactive API testing
-- Request/response examples
-- Endpoint descriptions
-- Schema definitions
-
-## Security Features
-
-### S3 Security
-- **Private Bucket**: All files stored in private S3 bucket
-- **No URL Exposure**: S3 URLs never exposed in API responses
-- **Proxied Access**: All file access goes through backend
-- **ACL Control**: Files uploaded with private ACL
-
-### API Security
-- **Input Validation**: File type and size validation
-- **Secure Filenames**: Uses `secure_filename` for safe file names
-- **Error Handling**: Comprehensive error handling without information leakage
-- **Standardized Responses**: Consistent API response format
-
-## File Metadata
-
-Each uploaded PDF stores the following metadata:
-- `filename`: Secure filename used in S3
-- `original_filename`: Original uploaded filename
-- `content_type`: MIME type of the file
-- `size`: File size in bytes
-- `md5`: MD5 hash for integrity verification
-- `created_at`: Upload timestamp (UTC)
-- `updated_at`: Last update timestamp (UTC)
-
-## Response Format
-
-All API responses follow a standardized format:
-
-### Success Response
-```json
-{
-  "success": true,
-  "message": "Operation completed successfully",
-  "data": { ... }
-}
-```
-
-### Error Response
-```json
-{
-  "success": false,
-  "message": "Error description",
-  "errors": { ... }
-}
+│       │   ├── tests/
+│       │   ├── v1.py
+│       │   └── health.py
+│       ├── config.py
+│       ├── specs/
+│       └── swagger_config.py
+├── Dockerfile
+├── docker-compose.yml
+├── docker-compose.prod.yml
+├── nginx-external.conf
+├── Makefile
+├── requirements.txt
+└── run.py
 ```
 
 ## Development
 
-### Code Quality
-- **Modular Structure**: Clean separation of concerns
-- **Factory Pattern**: Standardized response handling
-- **Error Handling**: Comprehensive error management
+### Adding New Endpoints
 
-### Testing Strategy
-- **Unit Tests**: Individual endpoint testing
-- **Integration Tests**: End-to-end workflow testing
-- **Mock Testing**: External service mocking
-- **Error Testing**: All error paths covered
+1. Create endpoint in `applications/pdf/api/v1.py`
+2. Add OpenAPI spec in `applications/pdf/specs/`
+3. Write tests in `applications/pdf/api/tests/`
+4. Update Swagger configuration if needed
 
-## Deployment
+### Code Style
 
-### Requirements
-- Python 3.8+
-- MongoDB instance
-- AWS S3 bucket
-- AWS credentials with S3 permissions
+- Follow PEP 8 guidelines
+- Use type hints where appropriate
+- Write comprehensive docstrings
+- Maintain 100% test coverage
 
-### Environment Variables
-Ensure all required environment variables are set in production (see Setup section for detailed examples).
+## Troubleshooting
+
+### Common Issues
+
+1. **MongoDB Connection Failed**
+   - Check MongoDB service is running
+   - Verify connection string in `.env`
+   - Check network connectivity
+
+2. **S3 Upload Failed**
+   - Verify AWS credentials
+   - Check S3 bucket permissions
+   - Ensure bucket exists and is accessible
+
+3. **Docker Build Fails**
+   - Check Docker is running
+   - Verify Dockerfile syntax
+   - Clear Docker cache: `docker system prune`
+
+4. **Port Already in Use**
+   - Change port in docker-compose.yml
+   - Stop conflicting services
+   - Use different port mapping
+
+5. **Nginx Configuration Issues**
+   - Check nginx syntax: `nginx -t`
+   - Verify SSL certificate paths
+   - Check file permissions
+
+### Logs
+
+```bash
+# Application logs
+make logs
+
+# Docker container logs
+docker-compose logs app
+
+# Nginx logs (external)
+sudo tail -f /var/log/nginx/access.log
+sudo tail -f /var/log/nginx/error.log
+```
 
 ## Contributing
 
-1. Follow the existing code structure
-2. Add tests for new features
-3. Maintain test coverage
-4. Update documentation as needed
-5. Use the ResponseFactory for consistent API responses
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

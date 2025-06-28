@@ -6,3 +6,4 @@ requests
 flasgger
 boto3
 pytest-cov
+flask-cors

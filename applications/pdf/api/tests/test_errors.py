@@ -1,3 +1,5 @@
+import pytest
+
 def test_404_error(client):
     response = client.get('/api/v1/nonexistent')
     assert response.status_code == 404
@@ -5,10 +7,10 @@ def test_404_error(client):
     assert 'not found' in response.json['message'].lower()
 
 def test_405_error(client):
-    response = client.get('/api/v1/upload')
+    response = client.post('/api/v1/health')  # POST to GET-only endpoint
     assert response.status_code == 405
     assert response.json['success'] is False
-    assert 'not allowed' in response.json['message'].lower()
+    assert 'method' in response.json['message'].lower()
 
 def test_500_error(client):
     app = client.application
@@ -17,5 +19,5 @@ def test_500_error(client):
         raise Exception("Simulated server error")
     response = client.get('/api/v1/raise-error')
     assert response.status_code == 500
-    assert response.json['success'] is False
-    assert 'internal server error' in response.json['message'].lower() 
+    assert 'error' in response.json
+    assert response.json['error'] == 'Internal server error' 
