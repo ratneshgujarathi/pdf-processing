@@ -5,10 +5,9 @@ A secure Flask-based API for uploading, storing, and viewing PDF files using AWS
 ## Features
 
 - **Secure PDF Upload**: Files uploaded to private S3 bucket with metadata stored in MongoDB
-- **No S3 URL Exposure**: All S3 access is proxied through the backend for security
 - **Comprehensive Metadata**: MD5 hash, timestamps, file size, and original filename tracking
 - **Swagger Documentation**: Interactive API documentation
-- **100% Test Coverage**: Robust test suite with modular test structure
+- **Modular Test Structure**: Robust test suite with comprehensive coverage
 - **Factory Pattern**: Standardized API responses using ResponseFactory
 
 ## Project Structure
@@ -169,7 +168,6 @@ All API responses follow a standardized format:
 ## Development
 
 ### Code Quality
-- **100% Test Coverage**: All business logic tested
 - **Modular Structure**: Clean separation of concerns
 - **Factory Pattern**: Standardized response handling
 - **Error Handling**: Comprehensive error management
@@ -189,18 +187,12 @@ All API responses follow a standardized format:
 - AWS credentials with S3 permissions
 
 ### Environment Variables
-Ensure all required environment variables are set in production:
-- `SECRET_KEY`
-- `MONGO_URI`
-- `AWS_ACCESS_KEY_ID`
-- `AWS_SECRET_ACCESS_KEY`
-- `AWS_S3_BUCKET_NAME`
-- `AWS_REGION`
+Ensure all required environment variables are set in production (see Setup section for detailed examples).
 
 ## Contributing
 
 1. Follow the existing code structure
 2. Add tests for new features
-3. Maintain 100% test coverage
+3. Maintain test coverage
 4. Update documentation as needed
 5. Use the ResponseFactory for consistent API responses
